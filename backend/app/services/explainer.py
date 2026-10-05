@@ -10,22 +10,22 @@ SENSOR_NAMES = {
 CAUSE_RULES = [
     {
         "pattern": {"temp_c": "high", "pressure_bar": "low"},
-        "cause_fa": "افزایش دمای غیرعادی احتمالاً ناشی از خرابی پمپ خنک‌کننده است",
+        "cause_fa": "The abnormal temperature rise is probably caused by a cooling pump failure",
         "cause_en": "Abnormal temperature rise likely caused by coolant pump failure",
     },
     {
         "pattern": {"neutron_flux": "low", "temp_c": "low"},
-        "cause_fa": "کاهش شار نوترون و دما احتمالاً ناشی از ورود میله کنترل است",
+        "cause_fa": "The drop in neutron flux and temperature is probably caused by control rod insertion",
         "cause_en": "Neutron flux and temperature drop likely caused by control rod insertion",
     },
     {
         "pattern": {"vibration_ms2": "high"},
-        "cause_fa": "افزایش لرزش احتمالاً ناشی از عدم تعادل مکانیکی است",
+        "cause_fa": "The increase in vibration is probably caused by a mechanical imbalance",
         "cause_en": "Increased vibration likely caused by mechanical imbalance",
     },
     {
         "pattern": {"pressure_bar": "high", "temp_c": "high"},
-        "cause_fa": "افزایش فشار و دما احتمالاً ناشی از گرفتگی مدار خنک‌کننده است",
+        "cause_fa": "The increase in pressure and temperature is probably caused by a cooling circuit blockage",
         "cause_en": "Pressure and temperature rise likely caused by coolant circuit blockage",
     },
 ]
@@ -65,6 +65,6 @@ def infer_probable_cause(
             return rule[cause_key], affected
 
     cause_key = "cause_fa" if lang == "fa" else "cause_en"
-    default_fa = "الگوی آنومالی شناسایی شد؛ علت دقیق نیاز به بررسی بیشتر دارد"
+    default_fa = "An anomaly pattern was identified; the exact cause needs further investigation"
     default_en = "Anomaly pattern detected; root cause requires further investigation"
     return (default_fa if lang == "fa" else default_en), affected

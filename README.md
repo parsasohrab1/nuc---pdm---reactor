@@ -1,263 +1,263 @@
 # Software Requirements Specification (SRS)
 
-## برای سیستم PdM-Nuclear (Predictive Maintenance for Nuclear Reactor)
+## For the PdM-Nuclear System (Predictive Maintenance for Nuclear Reactor)
 
-**نسخه:** 1.0  
-**تاریخ:** ۲۰۲۶-۰۵-۳۰  
-**وضعیت:** پیش‌نویس اولیه  
+**Version:** 1.0
+**Date:** 2026-05-30
+**Status:** Initial draft
 
 ---
 
-## ۱. مقدمه (Introduction)
+## 1. Introduction
 
-### ۱.۱ هدف سند
-هدف این سند، مشخص کردن نیازمندی‌های نرم‌افزاری برای سیستم تشخیص آنومالی و نگهداری پیش‌بینانه در رآکتورهای هسته‌ای است. این سند مبنای طراحی، پیاده‌سازی و تست قرار می‌گیرد.
+### 1.1 Document Purpose
+The purpose of this document is to specify the software requirements for an anomaly detection and predictive maintenance system for nuclear reactors. This document serves as the basis for design, implementation and testing.
 
-### ۱.۲ محدوده محصول
-محصول شامل سه ماژول اصلی است:
-1. **مولد داده‌های سنتتیک** (شبیه‌ساز فیزیک رآکتور با قابلیت تزریق آنومالی)
-2. **موتور تشخیص آنومالی** (LSTM Autoencoder + One-Class SVM + آستانه وفقی)
-3. **داشبورد اپراتور** (نمایش بلادرنگ، هشدارها، علت‌یابی SHAP)
+### 1.2 Product Scope
+The product includes three main modules:
+1. **Synthetic data generator** (a reactor physics simulator with anomaly injection capability)
+2. **Anomaly detection engine** (LSTM Autoencoder + One-Class SVM + adaptive threshold)
+3. **Operator dashboard** (real-time display, alerts, SHAP root-cause analysis)
 
-### ۱.۳ تعاریف، کوته‌نوشت‌ها و مخفف‌ها
+### 1.3 Definitions, Abbreviations and Acronyms
 
-| عبارت | تعریف |
+| Term | Definition |
 |-------|-------|
-| PdM | Predictive Maintenance – نگهداری پیش‌بینانه |
-| LSTM | Long Short-Term Memory – نوعی شبکه عصبی بازگشتی |
-| SHAP | SHapley Additive exPlanations – روش توضیح‌پذیری مدل |
-| MAE | Mean Absolute Error – معیار خطای مطلق میانگین |
-| SCADA | سیستم نظارت و جمع‌آوری داده |
+| PdM | Predictive Maintenance |
+| LSTM | Long Short-Term Memory – a type of recurrent neural network |
+| SHAP | SHapley Additive exPlanations – a model explainability method |
+| MAE | Mean Absolute Error – mean absolute error metric |
+| SCADA | Supervisory Control and Data Acquisition |
 
-### ۱.۴ مراجع
-- استاندارد IEEE 830-1998 برای SRS
-- استاندارد ANSI/ANS-3.2-2022 برای سیستم‌های کنترلی رآکتور
+### 1.4 References
+- IEEE 830-1998 standard for SRS
+- ANSI/ANS-3.2-2022 standard for reactor control systems
 
-### ۱.۵ مرور کلی
-این سند نیازمندی‌های کارکردی و غیرکارکردی را برای سیستم مورد نظر تعریف می‌کند.
+### 1.5 Overview
+This document defines the functional and non-functional requirements of the target system.
 
 ---
 
-## ۲. توصیف کلی (Overall Description)
+## 2. Overall Description
 
-### ۲.۱ چشم‌انداز محصول
-سیستم به عنوان یک لایه نرم‌افزاری روی سیستم SCADA موجود رآکتور نصب می‌شود و قابلیت تشخیص زودهنگام خرابی‌ها (حداقل ۲۰ دقیقه قبل از رویداد بحرانی) را فراهم می‌کند.
+### 2.1 Product Vision
+The system is installed as a software layer on top of the reactor's existing SCADA system and provides early failure detection (at least 20 minutes before a critical event).
 
-### ۲.۲ ویژگی‌های کاربران
+### 2.2 User Characteristics
 
-| نقش | شرح | دسترسی |
+| Role | Description | Access |
 |-----|------|---------|
-| اپراتور رآکتور | مشاهده داشبورد، دریافت هشدار | فقط خواندن |
-| مهندس نگهداری | تنظیم آستانه‌ها، مشاهده گزارش | خواندن + تغییر تنظیمات |
-| مدیر سیستم | نصب، پیکربندی، مدیریت کاربران | کامل |
-| محقق داده | آموزش مجدد مدل با داده جدید | دسترسی به API مدل |
+| Reactor operator | View the dashboard, receive alerts | Read-only |
+| Maintenance engineer | Set thresholds, view reports | Read + change settings |
+| System administrator | Install, configure, manage users | Full |
+| Data researcher | Retrain the model with new data | Access to the model API |
 
-### ۲.۳ محیط عملیاتی
-- **سخت‌افزار:** سرور صنعتی با GPU (حداقل ۸ گیگابایت رم GPU، ۳۲ گیگابایت رم سیستم)
-- **سیستم عامل:** لینوکس (اوبونتو ۲۲.۰۴ یا بالاتر) یا Windows Server 2019+
-- **پایگاه داده:** InfluxDB (برای داده‌های سری زمانی)
-- **زیرساخت شبکه:** شبکه محلی با تأخیر کمتر از ۱۰ میلی‌ثانیه
+### 2.3 Operating Environment
+- **Hardware:** Industrial server with GPU (at least 8 GB GPU RAM, 32 GB system RAM)
+- **Operating system:** Linux (Ubuntu 22.04 or later) or Windows Server 2019+
+- **Database:** InfluxDB (for time-series data)
+- **Network infrastructure:** Local network with latency under 10 milliseconds
 
-### ۲.۴ محدودیت‌های طراحی
-- تأخیر پردازش هر پنجره داده کمتر از ۵۰۰ میلی‌ثانیه باشد
-- سیستم باید بدون اتصال به اینترنت کار کند (عملیات آفلاین)
-- کلیه داده‌ها باید در سیستم محلی رمزگذاری شوند
+### 2.4 Design Constraints
+- Processing latency of each data window must be under 500 milliseconds
+- The system must work without an internet connection (offline operation)
+- All data must be encrypted on the local system
 
-### ۲.۵ پیش‌نیازها و وابستگی‌ها
-- دسترسی به جریان داده‌های سنسورها با نرخ ≥ ۱ هرتز از طریق OPC-UA یا Modbus TCP
-- حداقل ۵۰۰ گیگابایت فضای ذخیره‌سازی برای داده‌های یک ماهه
+### 2.5 Prerequisites and Dependencies
+- Access to the sensor data stream at a rate ≥ 1 Hz via OPC-UA or Modbus TCP
+- At least 500 GB of storage for one month of data
 
 ---
 
-## ۳. نیازمندی‌های خاص (Specific Requirements)
+## 3. Specific Requirements
 
-### ۳.۱ نیازمندی‌های کارکردی (Functional Requirements)
+### 3.1 Functional Requirements
 
-#### ۳.۱.۱ مولد داده‌های سنتتیک
+#### 3.1.1 Synthetic Data Generator
 
-| کد | نیازمندی | اولویت |
+| Code | Requirement | Priority |
 |----|----------|--------|
-| FR-01 | سیستم باید قادر به تولید داده‌های سنتتیک برای ۴ متغیر دما، فشار، شار نوترون، لرزش باشد | ضروری |
-| FR-02 | داده‌ها با فرکانس انتخابی ۰.۱ تا ۱۰ هرتز قابل تولید باشند | ضروری |
-| FR-03 | سیستم باید قابلیت تزریق ۴ نوع آنومالی استاندارد را داشته باشد (جدول ۱) | ضروری |
-| FR-04 | خروجی مولد شامل فایل CSV با ستون‌های timestamp, temp_c, pressure_bar, neutron_flux, vibration_ms2, label باشد | ضروری |
-| FR-05 | قابلیت تولید داده برای بازه ۱ روز تا ۱۲ ماه | ضروری |
+| FR-01 | The system must be able to generate synthetic data for 4 variables: temperature, pressure, neutron flux, vibration | Essential |
+| FR-02 | Data must be generatable at a selectable frequency of 0.1 to 10 Hz | Essential |
+| FR-03 | The system must be able to inject 4 types of standard anomalies (Table 1) | Essential |
+| FR-04 | The generator output must be a CSV file with the columns timestamp, temp_c, pressure_bar, neutron_flux, vibration_ms2, label | Essential |
+| FR-05 | Ability to generate data for a period of 1 day to 12 months | Essential |
 
-**جدول ۱ – انواع آنومالی قابل تزریق:**
+**Table 1 – Injectable anomaly types:**
 
-| نوع | نام | الگو | مقدار پیش‌فرض |
+| Type | Name | Pattern | Default value |
 |-----|-----|------|---------------|
-| A1 | افزایش دمای ناگهانی | پله +۱۵ تا +۳۰ درجه | ۲۰۰ رویداد در ماه |
-| A2 | نوسان فشار غیرعادی | نویز گاوسی با میانگین +۱۰ | ۱۵۰ رویداد در ماه |
-| A3 | افت شار نوترون | ضرب ۰.۳ | ۱۰۰ رویداد در ماه |
-| A4 | لرزش فرکانس بالا | افزایش ۰.۸ تا ۱.۵ واحد | ۲۵۰ رویداد در ماه |
+| A1 | Sudden temperature rise | Step of +15 to +30 degrees | 200 events per month |
+| A2 | Abnormal pressure fluctuation | Gaussian noise with mean +10 | 150 events per month |
+| A3 | Neutron flux drop | Multiply by 0.3 | 100 events per month |
+| A4 | High-frequency vibration | Increase of 0.8 to 1.5 units | 250 events per month |
 
-#### ۳.۱.۲ دریافت و پیش‌پردازش داده
+#### 3.1.2 Data Acquisition and Preprocessing
 
-| کد | نیازمندی | اولویت |
+| Code | Requirement | Priority |
 |----|----------|--------|
-| FR-06 | سیستم باید از پروتکل OPC-UA برای دریافت بلادرنگ داده پشتیبانی کند | ضروری |
-| FR-07 | داده‌های گمشده با روش درون‌یابی خطی بازسازی شوند | ضروری |
-| FR-08 | نرمال‌سازی داده‌ها با روش Min-Max (محدوده ۰ تا ۱) انجام شود | ضروری |
-| FR-09 | پنجره‌زنی پویا: طول پنجره برای شار نوترون ۱۰ ثانیه، برای دما ۳۶۰۰ ثانیه | ضروری |
+| FR-06 | The system must support the OPC-UA protocol for real-time data acquisition | Essential |
+| FR-07 | Missing data must be reconstructed with linear interpolation | Essential |
+| FR-08 | Data normalization must be done with the Min-Max method (range 0 to 1) | Essential |
+| FR-09 | Dynamic windowing: window length of 10 seconds for neutron flux, 3600 seconds for temperature | Essential |
 
-#### ۳.۱.۳ موتور تشخیص آنومالی
+#### 3.1.3 Anomaly Detection Engine
 
-| کد | نیازمندی | اولویت |
+| Code | Requirement | Priority |
 |----|----------|--------|
-| FR-10 | سیستم باید شامل یک LSTM Autoencoder با معماری مشخص (ورودی: ۶۴، کدگذار: ۳۲-۱۶، رمزگشا: ۳۲-۶۴) باشد | ضروری |
-| FR-11 | مدل فقط بر روی داده‌های دارای برچسب ۰ (نرمال) آموزش ببیند | ضروری |
-| FR-12 | خطای بازسازی با معیار MSE محاسبه شود | ضروری |
-| FR-13 | آستانه تشخیص به صورت وفقی با فرمول μ + kσ (k=3 پیش‌فرض) هر ۲۴ ساعت بروزرسانی شود | ضروری |
-| FR-14 | سیستم قادر به تشخیص آنومالی در کمتر از ۱ ثانیه پس از دریافت پنجره باشد | ضروری |
-| FR-15 | خروجی موتور شامل: ۱/۰ آنومالی، مقدار خطای بازسازی، امتیاز اطمینان (۰ تا ۱۰۰) باشد | ضروری |
+| FR-10 | The system must include an LSTM Autoencoder with a specific architecture (input: 64, encoder: 32-16, decoder: 32-64) | Essential |
+| FR-11 | The model must be trained only on data labeled 0 (normal) | Essential |
+| FR-12 | Reconstruction error must be calculated with the MSE metric | Essential |
+| FR-13 | The detection threshold must be adaptive with the formula μ + kσ (k=3 by default) and updated every 24 hours | Essential |
+| FR-14 | The system must be able to detect an anomaly in less than 1 second after receiving the window | Essential |
+| FR-15 | The engine output must include: 1/0 anomaly, reconstruction error value, confidence score (0 to 100) | Essential |
 
-#### ۳.۱.۴ توضیح‌پذیری و علت‌یابی
+#### 3.1.4 Explainability and Root-Cause Analysis
 
-| کد | نیازمندی | اولویت |
+| Code | Requirement | Priority |
 |----|----------|--------|
-| FR-16 | سیستم باید با استفاده از کتابخانه SHAP برای هر هشدار، اهمیت هر سنسور را محاسبه کند | ضروری |
-| FR-17 | برای هر آنومالی، علت احتمالی بر اساس جدول قوانین (جدول ۲) ارائه شود | ضروری |
-| FR-18 | گزارش علت به زبان طبیعی (مثلاً «افزایش دمای غیرعادی احتمالاً ناشی از خرابی پمپ خنک‌کننده است») تولید شود | مطلوب |
+| FR-16 | The system must calculate the importance of each sensor for every alert using the SHAP library | Essential |
+| FR-17 | For each anomaly, a probable cause must be provided based on a rules table (Table 2) | Essential |
+| FR-18 | A natural-language cause report must be generated (e.g., "The abnormal temperature rise is probably caused by a cooling pump failure") | Desirable |
 
-**جدول ۲ – قوانین علت‌یابی:**
+**Table 2 – Root-cause rules:**
 
-| الگوی سنسورها | علت احتمالی |
+| Sensor pattern | Probable cause |
 |--------------|--------------|
-| دما ↑↑، فشار ↓ | خرابی خنک‌کننده |
-| نوترون ↓↓، دما ↓ | ورود میله کنترل |
-| لرزش ↑↑ | عدم تعادل مکانیکی |
-| فشار ↑↑، دما ↑ | گرفتگی مدار |
+| Temperature ↑↑, pressure ↓ | Cooling failure |
+| Neutron ↓↓, temperature ↓ | Control rod insertion |
+| Vibration ↑↑ | Mechanical imbalance |
+| Pressure ↑↑, temperature ↑ | Circuit blockage |
 
-#### ۳.۱.۵ رابط کاربری و هشدارها
+#### 3.1.5 User Interface and Alerts
 
-| کد | نیازمندی | اولویت |
+| Code | Requirement | Priority |
 |----|----------|--------|
-| FR-19 | داشبورد تحت وب با قابلیت نمایش ۴ نمودار برخط (بروزرسانی هر ۱ ثانیه) | ضروری |
-| FR-20 | هشدارها به صورت صوتی (بیپ) و بصری (پاپ‌آپ قرمز) نمایش داده شوند | ضروری |
-| FR-21 | تاریخچه آخرین ۱۰۰ هشدار به همراه جزئیات در داشبورد قابل مشاهده باشد | ضروری |
-| FR-22 | قابلیت خروجی گرفتن گزارش PDF از هشدارهای یک بازه زمانی | مطلوب |
+| FR-19 | A web-based dashboard able to display 4 online charts (updated every 1 second) | Essential |
+| FR-20 | Alerts must be displayed audibly (beep) and visually (red popup) | Essential |
+| FR-21 | The history of the last 100 alerts with details must be viewable on the dashboard | Essential |
+| FR-22 | Ability to export a PDF report of the alerts in a time interval | Desirable |
 
-#### ۳.۱.۶ ذخیره‌سازی و مدیریت داده
+#### 3.1.6 Data Storage and Management
 
-| کد | نیازمندی | اولویت |
+| Code | Requirement | Priority |
 |----|----------|--------|
-| FR-23 | داده‌های خام سنسورها به مدت حداقل ۳ ماه در پایگاه داده InfluxDB ذخیره شوند | ضروری |
-| FR-24 | مدل آموزش‌دیده شده در قالب فایل .h5 یا .onnx ذخیره و بازیابی شود | ضروری |
-| FR-25 | عملیات بک‌آپ خودکار هر ۲۴ ساعت از کل داده‌ها و مدل | ضروری |
+| FR-23 | Raw sensor data must be stored in the InfluxDB database for at least 3 months | Essential |
+| FR-24 | The trained model must be saved and loaded as a .h5 or .onnx file | Essential |
+| FR-25 | Automatic backup of all data and the model every 24 hours | Essential |
 
-### ۳.۲ نیازمندی‌های غیرکارکردی (Non-Functional Requirements)
+### 3.2 Non-Functional Requirements
 
-#### ۳.۲.۱ عملکرد (Performance)
+#### 3.2.1 Performance
 
-| کد | نیازمندی | مقدار |
+| Code | Requirement | Value |
 |----|----------|-------|
-| NFR-01 | زمان پاسخگویی از دریافت داده تا نمایش هشدار | ≤ ۱ ثانیه |
-| NFR-02 | نرخ تشخیص صحیح (TPR) | ≥ ۹۵٪ |
-| NFR-03 | نرخ هشدار نادرست (FPR) | ≤ ۲٪ |
-| NFR-04 | توان پردازش همزمان | حداقل ۱۰۰۰ سنسور |
+| NFR-01 | Response time from data reception to alert display | ≤ 1 second |
+| NFR-02 | True detection rate (TPR) | ≥ 95% |
+| NFR-03 | False alarm rate (FPR) | ≤ 2% |
+| NFR-04 | Concurrent processing capacity | At least 1000 sensors |
 
-#### ۳.۲.۲ قابلیت اطمینان و در دسترس بودن
+#### 3.2.2 Reliability and Availability
 
-| کد | نیازمندی |
+| Code | Requirement |
 |----|----------|
-| NFR-05 | در دسترس بودن سیستم (Uptime) ≥ ۹۹.۹٪ |
-| NFR-06 | سیستم در صورت قطع برق، قادر به بازیابی خودکار ظرف ۲ دقیقه باشد |
-| NFR-07 | میانگین زمان بین خرابی‌ها (MTBF) ≥ ۷۲۰ ساعت |
+| NFR-05 | System availability (Uptime) ≥ 99.9% |
+| NFR-06 | In case of power loss, the system must be able to recover automatically within 2 minutes |
+| NFR-07 | Mean time between failures (MTBF) ≥ 720 hours |
 
-#### ۳.۲.۳ امنیت
+#### 3.2.3 Security
 
-| کد | نیازمندی |
+| Code | Requirement |
 |----|----------|
-| NFR-08 | احراز هویت دو عاملی برای دسترسی مدیران |
-| NFR-09 | رمزنگاری داده‌ها در حالت ذخیره‌سازی با AES-256 |
-| NFR-10 | ثبت لاگ تمامی دسترسی‌ها و تغییرات تنظیمات |
-| NFR-11 | جداسازی شبکه عملیاتی از شبکه سازمانی |
+| NFR-08 | Two-factor authentication for administrator access |
+| NFR-09 | Data encryption at rest with AES-256 |
+| NFR-10 | Logging all accesses and configuration changes |
+| NFR-11 | Separation of the operational network from the enterprise network |
 
-#### ۳.۲.۴ قابلیت نگهداری
+#### 3.2.4 Maintainability
 
-| کد | نیازمندی |
+| Code | Requirement |
 |----|----------|
-| NFR-12 | کد منبع با زبان پایتون ۳.۱۰+ و استفاده از کتابخانه‌های TensorFlow، FastAPI، InfluxDB-client |
-| NFR-13 | مستندات API به صورت Swagger/OpenAPI |
-| NFR-14 | قابلیت به‌روزرسانی مدل بدون توقف سیستم |
+| NFR-12 | Source code in Python 3.10+ using the TensorFlow, FastAPI, InfluxDB-client libraries |
+| NFR-13 | API documentation as Swagger/OpenAPI |
+| NFR-14 | Ability to update the model without stopping the system |
 
-#### ۳.۲.۵ قابلیت آموزش (Usability)
+#### 3.2.5 Usability
 
-| کد | نیازمندی |
+| Code | Requirement |
 |----|----------|
-| NFR-15 | زمان آموزش اپراتور برای کار با داشبورد ≤ ۲ ساعت |
-| NFR-16 | داشبورد باید به زبان فارسی و انگلیسی قابل切换 باشد |
+| NFR-15 | Operator training time to work with the dashboard ≤ 2 hours |
+| NFR-16 | The dashboard must be switchable between Persian and English |
 
 ---
 
-## ۴. مدل‌های داده (Data Models)
+## 4. Data Models
 
-### ۴.۱ ساختار داده‌های ورودی سنسور
+### 4.1 Sensor Input Data Structure
 
-| فیلد | نوع | بازه | توضیح |
+| Field | Type | Range | Description |
 |------|-----|------|-------|
-| timestamp | datetime64[ns] | - | زمان با دقت ثانیه |
-| temp_c | float32 | ۲۵۰ - ۳۵۰ | دمای قلب رآکتور (سلسیوس) |
-| pressure_bar | float32 | ۱۴۰ - ۱۶۰ | فشار خنک‌کننده (بار) |
-| neutron_flux | int32 | ۸۰۰ - ۱۲۰۰ | شار نوترون (در واحد نسبی) |
-| vibration_ms2 | float32 | ۰.۱ - ۲.۰ | شتاب لرزش (متر بر مجذور ثانیه) |
+| timestamp | datetime64[ns] | - | Time with second precision |
+| temp_c | float32 | 250 - 350 | Reactor core temperature (Celsius) |
+| pressure_bar | float32 | 140 - 160 | Coolant pressure (bar) |
+| neutron_flux | int32 | 800 - 1200 | Neutron flux (in relative units) |
+| vibration_ms2 | float32 | 0.1 - 2.0 | Vibration acceleration (meters per second squared) |
 
-### ۴.۲ ساختار خروجی تشخیص
+### 4.2 Detection Output Structure
 
-| فیلد | نوع | توضیح |
+| Field | Type | Description |
 |------|-----|-------|
-| anomaly_label | int8 | ۰ = نرمال، ۱ = آنومالی |
-| reconstruction_error | float32 | خطای MSE بازسازی |
-| confidence_score | float32 | ۰ تا ۱۰۰ |
-| probable_cause | string | توضیح علت به زبان طبیعی |
-| affected_sensors | list[string] | لیست سنسورهای پرخطا |
+| anomaly_label | int8 | 0 = normal, 1 = anomaly |
+| reconstruction_error | float32 | MSE reconstruction error |
+| confidence_score | float32 | 0 to 100 |
+| probable_cause | string | Cause explanation in natural language |
+| affected_sensors | list[string] | List of high-error sensors |
 
 ---
 
-## ۵. الزامات واسط (Interface Requirements)
+## 5. Interface Requirements
 
-### ۵.۱ واسط کاربر (UI)
-- فریم‌ورک: React.js
-- قالب: داشبورد واکنش‌گرا (Responsive)
-- مولفه‌ها: نمودارهای خطی بروزرسانی‌شونده، جدول هشدارها، پنل تنظیمات
+### 5.1 User Interface (UI)
+- Framework: React.js
+- Template: Responsive dashboard
+- Components: Live-updating line charts, alerts table, settings panel
 
-### ۵.۲ واسط برنامه‌نویسی (API)
-- سبک: RESTful
-- قالب داده: JSON
-- نقاط دسترسی اصلی:
+### 5.2 Application Programming Interface (API)
+- Style: RESTful
+- Data format: JSON
+- Main endpoints:
 
-| متد | مسیر | توضیح |
+| Method | Path | Description |
 |------|------|-------|
-| POST | /api/v1/predict | دریافت پنجره داده، بازگشت نتیجه تشخیص |
-| GET | /api/v1/alerts | دریافت تاریخچه هشدارها |
-| POST | /api/v1/model/retrain | درخواست آموزش مجدد مدل |
+| POST | /api/v1/predict | Receive a data window, return the detection result |
+| GET | /api/v1/alerts | Get the alert history |
+| POST | /api/v1/model/retrain | Request model retraining |
 
-### ۵.۳ واسط سخت‌افزار
-- پروتکل OPC-UA (کتابخانه freeopcua)
-- پروتکل Modbus TCP (کتابخانه pymodbus)
+### 5.3 Hardware Interface
+- OPC-UA protocol (freeopcua library)
+- Modbus TCP protocol (pymodbus library)
 
 ---
 
-## ۶. الزامات تست و اعتبارسنجی
+## 6. Testing and Validation Requirements
 
-| کد | نیازمندی تست |
+| Code | Test requirement |
 |----|----------------|
-| TEST-01 | تست واحد (Unit Test) برای هر تابع پیش‌پردازش |
-| TEST-02 | تست یکپارچگی (Integration Test) بین مولد داده و موتور تشخیص |
-| TEST-03 | تست پذیرش (Acceptance Test) با ۱۰ سناریوی خرابی شبیه‌سازی‌شده |
-| TEST-04 | تست عملکرد (Load Test) با نرخ ۱۰۰۰ رکورد در ثانیه |
+| TEST-01 | Unit Test for each preprocessing function |
+| TEST-02 | Integration Test between the data generator and the detection engine |
+| TEST-03 | Acceptance Test with 10 simulated failure scenarios |
+| TEST-04 | Performance (Load) Test at a rate of 1000 records per second |
 
 ---
 
-## ۷. جدول اولویت‌بندی نیازمندی‌ها
+## 7. Requirements Prioritization Table
 
-| اولویت | تعداد نیازمندی‌ها |
+| Priority | Number of requirements |
 |--------|-------------------|
-| ضروری (Must-have) | ۲۲ مورد |
-| مطلوب (Should-have) | ۴ مورد |
-| می‌تواند (Could-have) | ۲ مورد |
+| Essential (Must-have) | 22 |
+| Desirable (Should-have) | 4 |
+| Could-have | 2 |
 
 ---
 
-در صورت نیاز به **قالب مستند رسمی برای تحویل به کارفرما** یا **تبدیل این SRS به فایل Word/PDF** با شماره‌بندی استاندارد، لطفاً اعلام کنید. همچنین می‌توانم **نمودارهای Use Case، Sequence و Activity Diagram** را برای این SRS با استفاده از کد PlantUML یا Draw.io تهیه کنم.
+If you need an **official document template for delivery to the client** or **conversion of this SRS to a Word/PDF file** with standard numbering, please let me know. I can also prepare **Use Case, Sequence and Activity diagrams** for this SRS using PlantUML or Draw.io code.

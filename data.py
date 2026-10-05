@@ -2,14 +2,14 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
-# تنظیمات
-seconds_in_month = 30 * 24 * 3600  # 30 روز
+# Settings
+seconds_in_month = 30 * 24 * 3600  # 30 days
 start_time = datetime(2025, 1, 1, 0, 0, 0)
 timestamps = [start_time + timedelta(seconds=i) for i in range(seconds_in_month)]
 
-# توابع شبیه‌سازی سیگنال‌های نرمال رآکتور
+# Functions for simulating normal reactor signals
 def normal_temperature(t):
-    # دما با نوسان روزانه + روند آرام
+    # Temperature with daily fluctuation + slow trend
     daily = 5 * np.sin(2 * np.pi * t / 86400)
     trend = 1e-6 * t
     noise = np.random.normal(0, 0.2, len(t)) if isinstance(t, np.ndarray) else 0
@@ -19,14 +19,14 @@ def normal_pressure(t):
     return 150 + 2 * np.sin(2 * np.pi * t / 43200) + np.random.normal(0, 0.1)
 
 def normal_neutron_flux(t):
-    # نوتورن‌ها با نویز پواسون
+    # Neutrons with Poisson noise
     base = 1000 + 0.5 * np.sin(2 * np.pi * t / 3600)
     return np.random.poisson(base)
 
 def normal_vibration(t):
     return 0.5 * np.sin(2 * np.pi * t / 300) + np.random.normal(0, 0.05)
 
-# تولید داده‌های اولیه نرمال
+# Generate the initial normal data
 t_seconds = np.arange(seconds_in_month)
 data = {
     'timestamp': timestamps,
@@ -37,39 +37,39 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# تزریق آنومالی‌های مصنوعی (شامل ۴ نوع عیب)
+# Inject artificial anomalies (including 4 fault types)
 np.random.seed(42)
 anomaly_indices = []
 
-# نوع ۱: افزایش ناگهانی دما (نشانه خرابی خنک‌کننده)
+# Type 1: sudden temperature rise (sign of cooling failure)
 anom1 = np.random.choice(seconds_in_month, size=200, replace=False)
 df.loc[anom1, 'temp_c'] += np.random.uniform(15, 30, size=200)
 anomaly_indices.extend(anom1)
 
-# نوع ۲: نوسان فشار غیرعادی (نشت)
+# Type 2: abnormal pressure fluctuation (leak)
 anom2 = np.random.choice(seconds_in_month, size=150, replace=False)
 df.loc[anom2, 'pressure_bar'] += np.random.normal(10, 2, size=150)
 anomaly_indices.extend(anom2)
 
-# نوع ۳: افت ناگهانی نوترون (کنترل میله‌ها)
+# Type 3: sudden neutron drop (control rods)
 anom3 = np.random.choice(seconds_in_month, size=100, replace=False)
 df.loc[anom3, 'neutron_flux'] = df.loc[anom3, 'neutron_flux'] * 0.3
 anomaly_indices.extend(anom3)
 
-# نوع ۴: لرزش فرکانس بالا (نشانه عدم تعادل مکانیکی)
+# Type 4: high-frequency vibration (sign of mechanical imbalance)
 anom4 = np.random.choice(seconds_in_month, size=250, replace=False)
 df.loc[anom4, 'vibration_ms2'] += np.random.uniform(0.8, 1.5, size=250)
 anomaly_indices.extend(anom4)
 
-# ساخت برچسب آنومالی (۱ برای ناهنجاری، ۰ برای نرمال)
+# Build the anomaly label (1 for anomaly, 0 for normal)
 df['label'] = 0
 df.loc[anomaly_indices, 'label'] = 1
 
-# ذخیره به صورت فایل CSV (فقط یک نمونه کوچک برای نمایش)
-df_sample = df.iloc[::3600, :]  # نمونه‌برداری ساعتی برای نمایش
+# Save as a CSV file (only a small sample for display)
+df_sample = df.iloc[::3600, :]  # hourly sampling for display
 df_sample.to_csv('nuclear_reactor_synthetic_data.csv', index=False)
 
-# نمایش خلاصه
-print(f"تعداد کل رکوردها: {len(df)}")
-print(f"درصد آنومالی: {df['label'].mean()*100:.2f}%")
+# Display the summary
+print(f"Total number of records: {len(df)}")
+print(f"Anomaly percentage: {df['label'].mean()*100:.2f}%")
 print(df.head())
